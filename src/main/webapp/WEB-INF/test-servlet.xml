@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <context:component-scan base-package="com"/>
+    <mvc:annotation-driven/>
+    <mvc:resources mapping="/resources/**" location="/resources/"/>
+
+    <tx:annotation-driven/>
+
+    <!-- view region start -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <property name="prefix" value="/WEB-INF/views/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+        <property name="definitions">
+            <list>
+                <value>/WEB-INF/tiles-definitions.xml</value>
+            </list>
+        </property>
+    </bean>
+    <!-- view region end -->
+
+    <!-- i18n start  -->
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+        <property name="defaultLocale" value="ru"/>
+    </bean>
+
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean id="localeChangeInterceptor"
+                  class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+                <property name="paramName" value="lang"/>
+            </bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!-- Register the messages.properties -->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="messages"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
+    <!-- i18n end  -->
+
+    <!-- error region start -->
+    <bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">maxUploadExceeded</prop>
+                <prop key="org.springframework.web.servlet.PageNotFound">error/404</prop>
+                <prop key="java.lang.Exception">error/500</prop>
+            </props>
+        </property>
+    </bean>
+    <!-- error region end -->
+
+
+    <!-- multipart add -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="5000000"/>
+        <property name="resolveLazily" value="true"/>
+    </bean>
+    <!-- multipart end -->
+
+    <!-- hibernate region start -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${database.driver}"/>
+        <property name="url" value="${database.url}"/>
+        <property name="username" value="${database.user}"/>
+        <property name="password" value="${database.password}"/>
+    </bean>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="annotatedClasses">
+            <list>
+                <value>com.letter.domain.Order</value>
+                <value>com.letter.domain.OrderScan</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+                <prop key="hibernate.connection.pool_size">${hibernate.connection.pool_size}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    <!-- hibernate region end -->
+
+</beans>
