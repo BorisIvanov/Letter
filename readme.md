@@ -1,10 +1,9 @@
-JDK 1.7
-TOMCAT 7
-postgresql 9.3
-Spring 3.2.9
-Hibernate 4.1.9
-IDE Intellij IDEA 13.1
-
+* JDK 1.7
+* TOMCAT 7
+* postgresql 9.3
+* Spring 3.2.9
+* Hibernate 4.1.9
+* IDE Intellij IDEA 13.1
 
 Обоснование хранения файлов в БД
 
